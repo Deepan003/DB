@@ -1,0 +1,66 @@
+--
+-- Part 1: Creating Indexes
+--
+
+-- Q1. Create an index on the table client_master, field client_no.
+-- This speeds up searches that filter by client_no (e.g., WHERE client_no = '0001').
+-- Since client_no is a primary key, an index is often created automatically, but this shows how to do it manually.
+CREATE INDEX idx_client_no ON client_master(client_no);
+
+-- Q2. Create an index on the sales_order, field s_order_no.
+-- This improves performance when looking up specific orders.
+-- Like client_no, this primary key column likely already has an index.
+CREATE INDEX idx_s_order_no ON sales_order(s_order_no);
+
+-- Q3. Create a composite index on the sales_order_details table for the columns s_order_no and product_no.
+-- A composite index speeds up queries that filter on BOTH columns, which is common for this table.
+-- The primary key constraint on these two columns already creates a unique composite index.
+CREATE INDEX idx_order_product ON sales_order_details(s_order_no, product_no);
+
+-- Q4. Create a composite index ch_index on challan_header table for the columns challan_no and s_order_no.
+-- This speeds up searches that use both challan_no and s_order_no as criteria.
+CREATE INDEX ch_index ON challan_header(challan_no, s_order_no);
+
+-- Q5. Create a unique index on the table salesman_master, field salesman_no.
+-- A UNIQUE index ensures that no two rows can have the same value in the indexed column.
+-- Since salesman_no is a primary key, it already has a unique index, but this is the explicit command.
+CREATE UNIQUE INDEX udx_salesman_no ON salesman_master(salesman_no);
+
+--
+-- Part 2: Dropping an Index
+--
+
+-- Q6. Drop index ch_index on table challan_header.
+-- This command removes the index created in Q4. You might do this if an index is no longer needed or is harming performance.
+DROP INDEX ch_index;
+
+--
+-- Part 3: Creating and Using Views
+--
+
+-- Q7. Create a view on salesman_master whose sal_amt is less than 3500.
+-- This creates a virtual table called 'low_earning_salesmen' that only shows data for salesmen with a salary less than 3500.
+CREATE VIEW low_earning_salesmen AS
+SELECT *
+FROM salesman_master
+WHERE sal_amt < 3500;
+
+-- Q8. Create a view client_view on client_master and rename the columns.
+-- This creates a view that shows all clients but renames the columns to be more user-friendly.
+CREATE VIEW client_view (name, add1, add2, city, pcode, state) AS
+SELECT name, address1, address2, city, pincode, state
+FROM client_master;
+
+-- Q9. Select the client names from client_view who live in city 'Bombay'.
+-- This shows that you can query a view just like you would a regular table.
+SELECT name
+FROM client_view
+WHERE city = 'Bombay';
+
+--
+-- Part 4: Dropping a View
+--
+
+-- Q10. Drop the view client_view.
+-- This command deletes the view. The underlying table (client_master) and its data are not affected.
+DROP VIEW client_view;
