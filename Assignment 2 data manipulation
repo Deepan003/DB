@@ -1,0 +1,71 @@
+--
+-- Part 1: Modifying and Deleting Data
+--
+
+-- i. Change the selling price of '1.44 floppy drive' to Rs. [span_0](start_span)1150.00.[span_0](end_span)
+UPDATE product_master
+SET sell_price = 1150.00
+WHERE description = '1.44 Drive';
+
+-- ii. [span_1](start_span)Delete the record for client '0001' from the client_master table.[span_1](end_span)
+DELETE FROM client_master
+WHERE client_no = '0001';
+
+-- iii. [span_2](start_span)Change the city of client_no '0005' to 'Bombay'.[span_2](end_span)
+UPDATE client_master
+SET city = 'Bombay'
+WHERE client_no = '0005';
+
+-- iv. [span_3](start_span)Change the balance due of client_no '0001' to 1000.[span_3](end_span)
+UPDATE client_master
+SET bal_due = 1000
+WHERE client_no = '0001';
+
+--
+-- Part 2: Advanced Queries (Calculations, Patterns, Sorting)
+--
+
+-[span_4](start_span)- v. Find products with a selling price over 1500 and calculate a new price by multiplying the original by 15.[span_4](end_span)
+SELECT description, sell_price, sell_price * 15 AS new_selling_price
+FROM product_master
+WHERE sell_price > 1500;
+
+-- vi. [span_5](start_span)Find clients who live in a city where the second letter is 'a'.[span_5](end_span)
+SELECT name, city
+FROM client_master
+WHERE city LIKE '_a%';
+
+-- vii. [span_6](start_span)Find clients whose name has 'a' as the second letter.[span_6](end_span)
+SELECT name
+FROM client_master
+WHERE name LIKE '_a%';
+
+-- viii. [span_7](start_span)List all products sorted alphabetically by their description.[span_7](end_span)
+SELECT *
+FROM product_master
+ORDER BY description;
+
+--
+-- Part 3: Aggregate Functions (Summarizing Data)
+--
+
+-- ix. [span_8](start_span)Count the total number of orders.[span_8](end_span)
+-- Note: This requires the sales_order table from Assignment 3.
+SELECT COUNT(*) AS total_orders FROM sales_order;
+
+-- x. [span_9](start_span)Calculate the average price of all products.[span_9](end_span)
+SELECT AVG(sell_price) AS average_price
+FROM product_master;
+
+-- xi. [span_10](start_span)Calculate the minimum price among all products.[span_10](end_span)
+SELECT MIN(sell_price) AS minimum_price
+FROM product_master;
+
+-- xii. [span_11](start_span)Find the maximum and minimum prices, renaming the output columns to 'max_price' and 'min_price'.[span_11](end_span)
+SELECT MAX(sell_price) AS max_price, MIN(sell_price) AS min_price
+FROM product_master;
+
+-- xiii. [span_12](start_span)Count how many products have a price greater than or equal to 1500.[span_12](end_span)
+SELECT COUNT(*) AS products_over_1500
+FROM product_master
+WHERE sell_price >= 1500;
