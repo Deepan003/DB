@@ -1,0 +1,102 @@
+-- Q1. Find the product_no and description of non-moving products.
+-- A "non-moving" product is one that has never been sold.
+-- The subquery first creates a list of all products that HAVE been sold.
+-- The main query then selects products from the master list that are NOT IN the "sold" list.
+SELECT product_no, description
+FROM product_master
+WHERE product_no NOT IN (
+    SELECT DISTINCT product_no FROM sales_order_details
+);
+
+-- Q2. Find the customer name, address, city, and pincode for the client who has placed order no "O19001".
+-- The subquery finds the client_no for the specified order.
+-- The main query then uses this client_no to fetch the client's details.
+SELECT name, address1, city, pincode
+FROM client_master
+WHERE client_no = (
+    SELECT client_no FROM sales_order WHERE s_order_no = 'O19001'
+);
+
+-- Q3. Find the client names who have placed orders before the month of May '96.
+-- The subquery creates a list of all client numbers who placed an order before May 1st, 1996.
+-- The main query then fetches the names for the clients in that list.
+SELECT name
+FROM client_master
+WHERE client_no IN (
+    SELECT DISTINCT client_no FROM sales_order WHERE s_order_date < '01-MAY-96'
+);
+
+-- Q4. Find out if product "1.44 Drive" is ordered by only one client and print the client_no and name.
+-- This query uses a subquery in the HAVING clause.
+-- It first finds all clients who ordered the product, groups them, and the HAVING clause checks if the count of unique clients is exactly 1.
+SELECT c.client_no, c.name
+FROM client_master c
+JOIN sales_order s ON c.client_no = s.client_no
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE p.description = '1.44 Drive'
+GROUP BY c.client_no, c.name
+HAVING 1 = (
+    SELECT COUNT(DISTINCT so.client_no)
+    FROM sales_order so
+    JOIN sales_order_details sod ON so.s_order_no = sod.s_order_no
+    JOIN product_master pm ON sod.product_no = pm.product_no
+    WHERE pm.description = '1.44 Drive'
+);
+
+
+-- Q5. Find the names of clients who have placed orders worth Rs. 10,000 or more.
+-- This uses nested subqueries.
+-- The innermost query finds order numbers whose total value (qty * rate) is >= 10000.
+-- The middle query finds the client numbers for those orders.
+-- The outermost query finds the names of those clients.
+SELECT name
+FROM client_master
+WHERE client_no IN (
+    SELECT client_no FROM sales_order
+    WHERE s_order_no IN (
+        SELECT s_order_no FROM sales_order_details
+        GROUP BY s_order_no
+        HAVING SUM(qty_order * product_rate) >= 10000
+    )
+);
+
+-- Note: Questions 6, 7, 8, and 9 in the PDF use names and concepts (like 'Rahul Desai', 'Mr. Pradeep's department')
+-- that are not in the provided table data. The following queries are logical interpretations based on the available schema.
+
+-- Q6. Select the orders placed by 'Ivan'. (Interpreting 'Rahul Desai' as a sample name).
+-- The subquery gets the client_no for 'Ivan'.
+-- The main query then retrieves all orders belonging to that client_no.
+SELECT *
+FROM sales_order
+WHERE client_no = (
+    SELECT client_no FROM client_master WHERE name = 'Ivan'
+);
+
+-- Q8. Select all the clients and the salesmen in the city of Bombay.
+-[span_0](start_span)- The UNION clause is used to combine the results of two separate queries.[span_0](end_span)
+-- It merges the list of client names from Bombay with the list of salesman names from Bombay.
+SELECT name FROM client_master WHERE city = 'Bombay'
+UNION
+SELECT sal_name FROM salesman_master WHERE city = 'Bombay';
+
+-- Q9. Select salesman name in "Bombay" who has at least one client located at "Bombay".
+-- The innermost subquery gets a list of clients from Bombay.
+-- The middle subquery gets a list of salesmen who have sold to those clients.
+-- The main query selects the names of salesmen who are in Bombay AND are in the list from the middle subquery.
+SELECT sal_name
+FROM salesman_master
+WHERE city = 'Bombay' AND salesman_no IN (
+    SELECT salesman_no FROM sales_order
+    WHERE client_no IN (
+        SELECT client_no FROM client_master WHERE city = 'Bombay'
+    )
+);
+
+-- Q10. Select the product_no, description, qty_on-hand, cost_price of non_moving items.
+-- This is identical in logic to Q1 but requests more columns in the final output.
+SELECT product_no, description, qty_on_hand, cost_price
+FROM product_master
+WHERE product_no NOT IN (
+    SELECT DISTINCT product_no FROM sales_order_details
+);
