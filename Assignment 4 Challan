@@ -1,0 +1,70 @@
+--
+-- Part 1: Create New Tables for Challan (Delivery Slip) System
+--
+
+-- Create the 'Challan_Header' table to store the main details of each delivery challan.
+CREATE TABLE Challan_Header (
+    Challan_no VARCHAR2(6) PRIMARY KEY, -- Ensures each challan number is unique.
+    s_order_no VARCHAR2(6) REFERENCES sales_order(s_order_no), -- Links to an existing sales order.
+    challan_date DATE NOT NULL, -- The date of the challan cannot be empty.
+    billed_yn CHAR(1) DEFAULT 'N' CHECK (billed_yn IN ('Y', 'N')) -- Status must be 'Y' or 'N'; defaults to 'N'.
+);
+
+-- Create the 'Challan_Details' table to store the specific products dispatched in each challan.
+CREATE TABLE Challan_Details (
+    Challan_no VARCHAR2(6) REFERENCES Challan_Header(Challan_no), -- Links to a challan in the header table.
+    Product_no VARCHAR2(6) REFERENCES product_master(product_no), -- Links to an existing product.
+    Qty_disp NUMBER(4,2) NOT NULL, -- Quantity dispatched cannot be empty.
+    PRIMARY KEY (Challan_no, Product_no) -- The combination of challan and product must be unique.
+);
+
+--
+-- Part 2: Insert Data into the New Challan Tables
+--
+
+-- Insert records into the 'Challan_Header' table.
+INSERT INTO Challan_Header (Challan_no, s_order_no, challan_date, billed_yn) VALUES ('CH9001', 'O19001', '12-DEC-95', 'Y');
+INSERT INTO Challan_Header (Challan_no, s_order_no, challan_date, billed_yn) VALUES ('CH6865', 'O46865', '12-NOV-95', 'Y');
+INSERT INTO Challan_Header (Challan_no, s_order_no, challan_date, billed_yn) VALUES ('CH3965', 'O10008', '12-OCT-95', 'Y');
+
+-- Insert records into the 'Challan_Details' table.
+INSERT INTO Challan_Details (Challan_no, Product_no, Qty_disp) VALUES ('CH9001', 'P00001', 4);
+INSERT INTO Challan_Details (Challan_no, Product_no, Qty_disp) VALUES ('CH9001', 'P07965', 1);
+INSERT INTO Challan_Details (Challan_no, Product_no, Qty_disp) VALUES ('CH9001', 'P07885', 1);
+INSERT INTO Challan_Details (Challan_no, Product_no, Qty_disp) VALUES ('CH6865', 'P07868', 3);
+INSERT INTO Challan_Details (Challan_no, Product_no, Qty_disp) VALUES ('CH6865', 'P03453', 4);
+INSERT INTO Challan_Details (Challan_no, Product_no, Qty_disp) VALUES ('CH6865', 'P00001', 10);
+INSERT INTO Challan_Details (Challan_no, Product_no, Qty_disp) VALUES ('CH3965', 'P00001', 5);
+INSERT INTO Challan_Details (Challan_no, Product_no, Qty_disp) VALUES ('CH3965', 'P07975', 2);
+
+--
+-- Part 3: Solutions to the Queries (Modifying Existing Tables)
+--
+
+-- Q1. Make the primary key to client_no in client_master.
+-- This command adds a PRIMARY KEY constraint to an existing column.
+ALTER TABLE client_master
+ADD PRIMARY KEY (client_no);
+
+-- Q2. Add a new column phone_no in the client_master table.
+-- This command adds a new column with a specified data type to the table.
+ALTER TABLE client_master
+ADD (phone_no NUMBER(10));
+
+-- Q3. Add the not null constraint to multiple columns in the product_master table.
+-- The MODIFY clause is used to change a column's properties, like making it NOT NULL.
+ALTER TABLE product_master MODIFY (description NOT NULL);
+ALTER TABLE product_master MODIFY (profit_percent NOT NULL);
+ALTER TABLE product_master MODIFY (sell_price NOT NULL);
+ALTER TABLE product_master MODIFY (cost_price NOT NULL);
+
+-- Q4. Change the size of client_no field in the client_master table.
+-- This command modifies the size of an existing column. For example, from VARCHAR2(6) to VARCHAR2(10).
+ALTER TABLE client_master
+MODIFY (client_no VARCHAR2(10));
+
+-- Q5. Select product_no, description where profit percent is between 20 and 30 both inclusive.
+-- This is a simple query using the BETWEEN operator to filter data within a range.
+SELECT product_no, description
+FROM product_master
+WHERE profit_percent BETWEEN 20 AND 30;
