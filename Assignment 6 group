@@ -1,0 +1,74 @@
+-- Q1. Print the description and total quantity sold for each product.
+-- This groups all order lines by the product's description and then calculates the sum of quantities for each group.
+SELECT p.description, SUM(sd.qty_order) AS total_quantity_sold
+FROM product_master p
+JOIN sales_order_details sd ON p.product_no = sd.product_no
+GROUP BY p.description;
+
+-- Q2. Find the value of each product sold.
+-- This groups by product and calculates the total sales value (quantity * price) for each one.
+SELECT p.description, SUM(sd.qty_order * sd.product_rate) AS total_value
+FROM product_master p
+JOIN sales_order_details sd ON p.product_no = sd.product_no
+GROUP BY p.description;
+
+-- Q3. Calculate the average quantity sold for each client that has a maximum order value of 15000.
+-- This is a multi-step query. It first groups all sales by client name.
+-- Then, the HAVING clause filters these groups, keeping only those clients whose total spending is 15000 or less.
+-- Finally, it calculates the average order quantity for the clients that remain.
+SELECT c.name, AVG(sd.qty_order) AS average_quantity_sold
+FROM client_master c
+JOIN sales_order s ON c.client_no = s.client_no
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+GROUP BY c.name
+HAVING SUM(sd.qty_order * sd.product_rate) <= 15000;
+
+-- Q4. Find out the products which have been sold to Ivan.
+-- This is a simple JOIN query to find all products linked to a specific client.
+SELECT p.description
+FROM client_master c
+JOIN sales_order s ON c.client_no = s.client_no
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE c.name = 'Ivan';
+
+-- Q5. Find the names of clients who have purchased 'CD Drive'.
+-- This is a JOIN query to find all clients linked to a specific product.
+SELECT DISTINCT c.name
+FROM client_master c
+JOIN sales_order s ON c.client_no = s.client_no
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE p.description = 'CD Drive';
+
+-- Q6. Find the products and their quantities for the orders placed by 'Vandana' and 'Ivan'.
+-- This JOIN query uses the IN operator to retrieve order details for a list of specific clients.
+SELECT c.name, p.description, sd.qty_order
+FROM client_master c
+JOIN sales_order s ON c.client_no = s.client_no
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE c.name IN ('Vandana', 'Ivan');
+
+-- Q7. Select product_no, total qty_ordered for each product.
+-- This is a classic GROUP BY. It groups all sales by product number and sums the ordered quantity for each.
+SELECT product_no, SUM(qty_order) AS total_quantity_ordered
+FROM sales_order_details
+GROUP BY product_no;
+
+-- Q8. Select product_no, product description and qty ordered for each product.
+-- Similar to Q7, but it also joins with the product_master table to include the product's description in the result.
+SELECT p.product_no, p.description, SUM(sd.qty_order) AS total_quantity_ordered
+FROM product_master p
+JOIN sales_order_details sd ON p.product_no = sd.product_no
+GROUP BY p.product_no, p.description;
+
+-- Q9. Display the order number and day on which clients placed their order.
+-- This query uses the TO_CHAR function to extract and display the name of the day (e.g., 'Monday') from the order date.
+SELECT s_order_no, TO_CHAR(s_order_date, 'Day') AS order_day
+FROM sales_order;
+
+-- Q10. Display the month and Date when the order must be delivered.
+-- This query uses TO_CHAR to format the delivery date into a more readable format (e.g., 'October 12').
+SELECT s_order_no, TO_CHAR(dely_date, 'Month DD') AS delivery_date
+FROM sales_order;
