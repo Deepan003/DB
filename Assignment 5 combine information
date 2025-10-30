@@ -1,0 +1,80 @@
+-- Q1. [span_0](start_span)Find out the product which has been sold to 'Ivan'.[span_0](end_span)
+-- This query links four tables to find the answer.
+-- It starts with the client's name, finds their orders, finds the products in those orders, and finally gets the product names.
+SELECT p.description
+FROM client_master c
+JOIN sales_order s ON c.client_no = s.client_no
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE c.name = 'Ivan';
+
+-- Q2. [span_1](start_span)Find out the product and their quantities that will have to be delivered.[span_1](end_span)
+-- This query finds products from orders that are still "In Process".
+SELECT p.description, sd.qty_order
+FROM sales_order s
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE s.order_status = 'In Process';
+
+-- Q3. [span_2](start_span)Find the product_no and description of moving products.[span_2](end_span)
+-- "Moving products" are items that have been sold at least once.
+-- This query finds all unique products that appear in the sales_order_details table.
+SELECT DISTINCT p.product_no, p.description
+FROM product_master p
+JOIN sales_order_details sd ON p.product_no = sd.product_no;
+
+-- Q4. Find out the names of clients who have purchased 'CD DRIVE'.
+-- This is the reverse of Q1. It finds the product first and works back to find the client's name.
+SELECT DISTINCT c.name
+FROM product_master p
+JOIN sales_order_details sd ON p.product_no = sd.product_no
+JOIN sales_order s ON sd.s_order_no = s.s_order_no
+JOIN client_master c ON s.client_no = c.client_no
+WHERE p.description = 'CD Drive';
+
+-- Q5. [span_3](start_span)List the product_no and s_order_no for orders of "1.44 floppies" with a quantity less than 5.[span_3](end_span)
+-- This query joins two tables and applies two conditions in the WHERE clause.
+SELECT sd.s_order_no, sd.product_no
+FROM sales_order_details sd
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE p.description = '1.44 floppies' AND sd.qty_order < 5;
+
+-- Q6. [span_4](start_span)Find the products and their quantities for orders placed by 'Vandana' and 'Ivan'.[span_4](end_span)
+-- Similar to Q1, but uses the IN operator to search for multiple clients at once.
+SELECT c.name, p.description, sd.qty_order
+FROM client_master c
+JOIN sales_order s ON c.client_no = s.client_no
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE c.name IN ('Vandana', 'Ivan');
+
+-- Q7. [span_5](start_span)Find the products and their quantities for orders placed by client_no '0001' and '0002'.[span_5](end_span)
+-- This is almost the same as Q6 but filters by the client's ID instead of their name.
+SELECT s.client_no, p.description, sd.qty_order
+FROM sales_order s
+JOIN sales_order_details sd ON s.s_order_no = sd.s_order_no
+JOIN product_master p ON sd.product_no = p.product_no
+WHERE s.client_no IN ('0001', '0002');
+
+-- Q8. Find the order No, Client No, and Salesman No for any client who has been served by more than one salesman.
+-- This query first finds which clients have been served by multiple salesmen (using a subquery with GROUP BY and HAVING),
+-- and then retrieves all orders belonging to those clients.
+-- Note: The sample data does not have any such clients, so this query will correctly return no rows.
+SELECT s_order_no, client_no, salesman_no
+FROM sales_order
+WHERE client_no IN (
+    SELECT client_no
+    FROM sales_order
+    GROUP BY client_no
+    HAVING COUNT(DISTINCT salesman_no) > 1
+);
+
+-- Q9. [span_6](start_span)Display the s_order_date in the format "dd-mm-yy".[span_6](end_span)
+-- This query uses the TO_CHAR function to format the date for display purposes.
+SELECT s_order_no, TO_CHAR(s_order_date, 'DD-MM-YY') AS formatted_date
+FROM sales_order;
+
+-- Q10. [span_7](start_span)Find the date that is 15 days after the order date.[span_7](end_span)
+-- This query demonstrates date arithmetic in SQL by simply adding a number to a date value.
+SELECT s_order_no, s_order_date, s_order_date + 15 AS date_after_15_days
+FROM sales_order;
