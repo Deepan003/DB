@@ -1,0 +1,77 @@
+-- Part 1: Create the 'client_master' table to store client details.
+CREATE TABLE client_master (
+    client_no VARCHAR2(6),
+    name VARCHAR2(20),
+    address1 VARCHAR2(30),
+    address2 VARCHAR2(30),
+    city VARCHAR2(15),
+    state VARCHAR2(15),
+    pincode NUMBER(6),
+    bal_due NUMBER(10,2)
+);
+
+-- Part 2: Create the 'product_master' table to store product details.
+CREATE TABLE product_master (
+    product_no VARCHAR2(6),
+    description VARCHAR2(20),
+    profit_percent NUMBER(4,2),
+    unit_measure VARCHAR2(10),
+    qty_on_hand NUMBER(8),
+    reorder_lvl NUMBER(8),
+    sell_price NUMBER(8,2),
+    cost_price NUMBER(8,2)
+);
+
+-- Part 3: Insert all client records into the 'client_master' table.
+INSERT INTO client_master VALUES ('0001', 'Ivan', NULL, NULL, 'Bombay', 'Maharashtra', 400054, 15000);
+INSERT INTO client_master VALUES ('0002', 'Vandana', NULL, NULL, 'Madras', 'Tamilnadu', 780001, 0);
+INSERT INTO client_master VALUES ('0003', 'Pramada', NULL, NULL, 'Bombay', 'Maharashtra', 400057, 5000);
+INSERT INTO client_master VALUES ('0004', 'Basu', NULL, NULL, 'Bombay', 'Maharashtra', 400056, 0);
+INSERT INTO client_master VALUES ('0005', 'Ravi', NULL, NULL, 'Delhi', NULL, 100001, 2000);
+INSERT INTO client_master VALUES ('0006', 'Rukmini', NULL, NULL, 'Bombay', 'Maharashtra', 400050, 0);
+
+-- Part 4: Insert all product records into the 'product_master' table.
+INSERT INTO product_master VALUES ('P00001', '1.44 floppies', 5, 'piece', 100, 20, 525, 500);
+INSERT INTO product_master VALUES ('P03453', 'Monitors', 6, 'piece', 10, 3, 12000, 11200);
+INSERT INTO product_master VALUES ('P06734', 'Mouse', 5, 'piece', 20, 5, 1050, 500);
+INSERT INTO product_master VALUES ('P07865', '1.22 floppies', 5, 'piece', 100, 20, 525, 500);
+INSERT INTO product_master VALUES ('P07868', 'Keyboards', 2, 'piece', 10, 3, 3150, 3050);
+INSERT INTO product_master VALUES ('P07885', 'CD Drive', 2.5, 'piece', 10, 3, 5250, 5100);
+INSERT INTO product_master VALUES ('P07965', '540 HDD', 4, 'piece', 10, 3, 8400, 8000);
+INSERT INTO product_master VALUES ('P07975', '1.44 Drive', 5, 'piece', 10, 3, 1050, 1000);
+INSERT INTO product_master VALUES ('P08865', '1.22 Drive', 5, 'piece', 2, 3, 1050, 1000);
+
+
+--
+-- Part 5: Solutions to the Queries
+--
+
+-- i. [span_0](start_span)Find out the names of all the clients.[span_0](end_span)
+SELECT name FROM client_master;
+
+-- ii. [span_1](start_span)Retrieve the list of names and cities of all the clients.[span_1](end_span)
+SELECT name, city FROM client_master;
+
+-- iii. [span_2](start_span)List the various products available from the product_master table.[span_2](end_span)
+SELECT DISTINCT description FROM product_master;
+
+-- iv. [span_3](start_span)List all the clients who are located in Bombay.[span_3](end_span)
+SELECT * FROM client_master WHERE city = 'Bombay';
+
+-- v. Display the information for client no 0001 and 0002.
+SELECT * FROM client_master WHERE client_no IN ('0001', '0002');
+
+-- vi. [span_4](start_span)Find the products with description as '1.44 drive' and '1.22 Drive'.[span_4](end_span)
+SELECT * FROM product_master WHERE description IN ('1.44 Drive', '1.22 Drive');
+
+-- vii. [span_5](start_span)Find all the products whose sell price is greater than 5000.[span_5](end_span)
+SELECT * FROM product_master WHERE sell_price > 5000;
+
+-- viii. [span_6](start_span)Find the list of all clients who stay in city 'Bombay' or city 'Delhi' or 'Madras'.[span_6](end_span)
+SELECT * FROM client_master WHERE city IN ('Bombay', 'Delhi', 'Madras');
+
+-- ix. [span_7](start_span)Find the product whose selling price is greater than 2000 and less than or equal to 5000.[span_7](end_span)
+SELECT * FROM product_master WHERE sell_price > 2000 AND sell_price <= 5000;
+
+-- x. [span_8](start_span)List the name, city and state of clients not in the state of 'Maharashtra'.[span_8](end_span)
+SELECT name, city, state FROM client_master WHERE state != 'Maharashtra';
