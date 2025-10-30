@@ -1,0 +1,78 @@
+--
+-- Part 1: Creating Tables with Constraints
+--
+
+-- Create the 'salesman_master' table to store salesperson details.
+CREATE TABLE salesman_master (
+    salesman_no VARCHAR2(6) PRIMARY KEY, -- Ensures each salesman_no is unique and not null.
+    sal_name VARCHAR2(20) NOT NULL, -- Name cannot be empty.
+    address VARCHAR2(30) NOT NULL, -- Address cannot be empty.
+    city VARCHAR2(20),
+    state VARCHAR2(20),
+    pincode NUMBER(6),
+    sal_amt NUMBER(8,2) NOT NULL, -- Salary cannot be empty.
+    tgt_to_get NUMBER(6,2) NOT NULL, -- Target cannot be empty.
+    ytd_sales NUMBER(6,2) NOT NULL, -- Sales-to-date cannot be empty.
+    remarks VARCHAR2(30),
+    CONSTRAINT chk_sal_amt CHECK (sal_amt != 0), -- Ensures salary is not zero.
+    CONSTRAINT chk_tgt_to_get CHECK (tgt_to_get != 0), -- Ensures target is not zero.
+    CONSTRAINT chk_salesman_no CHECK (salesman_no LIKE 'S%') -- Ensures salesman_no starts with 'S'.
+);
+
+-- Create the 'sales_order' table to store order header information.
+CREATE TABLE sales_order (
+    s_order_no VARCHAR2(6) PRIMARY KEY, -- Ensures each s_order_no is unique.
+    s_order_date DATE,
+    client_no VARCHAR2(6) REFERENCES client_master(client_no), -- Foreign key linking to a valid client.
+    dely_type CHAR(1) DEFAULT 'F', -- Sets a default delivery type to 'F' (Full).
+    billed_yn CHAR(1),
+    salesman_no VARCHAR2(6) REFERENCES salesman_master(salesman_no), -- Foreign key linking to a valid salesman.
+    dely_date DATE,
+    order_status VARCHAR2(10),
+    CONSTRAINT chk_dely_date CHECK (dely_date >= s_order_date), -- Delivery date must be on or after the order date.
+    CONSTRAINT chk_order_status CHECK (order_status IN ('In Process', 'Fulfilled', 'Back Order', 'Cancelled')) -- Restricts status to specific values.
+);
+
+-- Create the 'sales_order_details' table to store the items within each order.
+CREATE TABLE sales_order_details (
+    s_order_no VARCHAR2(6) REFERENCES sales_order(s_order_no), -- Foreign key linking to a valid order.
+    product_no VARCHAR2(6) REFERENCES product_master(product_no), -- Foreign key linking to a valid product.
+    qty_order NUMBER(8),
+    qty_disp NUMBER(8),
+    product_rate NUMBER(10,2),
+    PRIMARY KEY (s_order_no, product_no) -- A composite primary key; the combination of order and product must be unique.
+);
+
+
+--
+-- Part 2: Inserting Data into the Tables
+--
+
+-- Insert records into the 'salesman_master' table.
+INSERT INTO salesman_master VALUES ('S00001', 'Kiran', 'A/14 worli', 'Bombay', 'Mah', 400002, 3000, 100, 50, 'Good');
+INSERT INTO salesman_master VALUES ('S00002', 'Manish', '65,nariman', 'Bombay', 'Mah', 400001, 3000, 200, 100, 'Good');
+INSERT INTO salesman_master VALUES ('S00003', 'Ravi', 'P-7 Bandra', 'Bombay', 'Mah', 400032, 3000, 200, 100, 'Good');
+INSERT INTO salesman_master VALUES ('S00004', 'Ashish', 'A/5 Juhu', 'Bombay', 'Mah', 400044, 3500, 200, 150, 'Good');
+
+-- Insert records into the 'sales_order' table.
+-- Note: Oracle date format is typically 'DD-MON-YY'.
+INSERT INTO sales_order VALUES ('O19001', '12-JAN-96', '0001', 'F', 'N', 'S00001', '20-JAN-96', 'In Process');
+INSERT INTO sales_order VALUES ('O19002', '25-JAN-96', '0002', 'P', 'N', 'S00002', '27-JAN-96', 'Cancelled');
+INSERT INTO sales_order VALUES ('O16865', '18-FEB-96', '0003', 'F', 'Y', 'S00003', '20-FEB-96', 'Fulfilled');
+INSERT INTO sales_order VALUES ('O19003', '03-APR-96', '0001', 'F', 'Y', 'S00001', '07-APR-96', 'Fulfilled');
+INSERT INTO sales_order VALUES ('O46866', '20-MAY-96', '0004', 'P', 'N', 'S00002', '22-MAY-96', 'Cancelled');
+INSERT INTO sales_order VALUES ('O10008', '24-MAY-96', '0005', 'F', 'N', 'S00004', '26-MAY-96', 'In Process');
+
+-- Insert records into the 'sales_order_details' table.
+INSERT INTO sales_order_details VALUES ('O19001', 'P00001', 4, 4, 525);
+INSERT INTO sales_order_details VALUES ('O19001', 'P07965', 2, 1, 8400);
+INSERT INTO sales_order_details VALUES ('O19001', 'P07885', 2, 1, 5250);
+INSERT INTO sales_order_details VALUES ('O19002', 'P00001', 10, 0, 525);
+INSERT INTO sales_order_details VALUES ('O46865', 'P07868', 3, 3, 3150);
+INSERT INTO sales_order_details VALUES ('O46865', 'P07885', 10, 10, 5250);
+INSERT INTO sales_order_details VALUES ('O19003', 'P00001', 4, 4, 1050);
+INSERT INTO sales_order_details VALUES ('O19003', 'P03453', 2, 2, 1050);
+INSERT INTO sales_order_details VALUES ('O46866', 'P06734', 1, 1, 12000);
+INSERT INTO sales_order_details VALUES ('O46866', 'P07965', 1, 0, 8400);
+INSERT INTO sales_order_details VALUES ('O10008', 'P07975', 1, 0, 1050);
+INSERT INTO sales_order_details VALUES ('O10008', 'P00001', 10, 5, 525);
