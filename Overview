@@ -1,0 +1,79 @@
+Here's an overview of all the key SQL concepts from your manual, explained with simple examples.
+## DDL - The Architect 🏗️
+DDL (Data Definition Language) commands define or change the structure of your tables.
+ * [cite_start]CREATE TABLE: Builds a new table from scratch.
+   CREATE TABLE Client (ID NUMBER, Name VARCHAR2(20));
+
+ * [cite_start]ALTER TABLE: Modifies an existing table's structure.
+   * ADD: Adds a new column.
+     ALTER TABLE Client ADD (City VARCHAR2(15));
+
+   * MODIFY: Changes a column's properties (like its size or rules).
+     ALTER TABLE Client MODIFY (Name VARCHAR2(30));
+
+ * [cite_start]DROP TABLE: Permanently deletes a table.
+   DROP TABLE Client;
+
+## DML - The Manager 💼
+[cite_start]DML (Data Manipulation Language) commands are used to manage the data within the tables.
+ * [cite_start]INSERT INTO: Adds a new row of data.
+   INSERT INTO Client (ID, Name) VALUES (1, 'Rohan');
+
+ * [cite_start]UPDATE: Changes data in existing rows. The WHERE clause is essential to target the correct row.
+   UPDATE Client SET City = 'Mumbai' WHERE ID = 1;
+
+ * [cite_start]DELETE FROM: Removes rows. The WHERE clause is essential here too.
+   DELETE FROM Client WHERE ID = 1;
+
+## Queries - The Detective 🔎
+These commands are used to ask questions and retrieve data from your tables.
+ * [cite_start]SELECT ... FROM: Fetches data from a table.
+   SELECT Name, City FROM Client;
+
+ * [cite_start]WHERE: Filters the results based on a condition.
+   SELECT Name FROM Client WHERE City = 'Mumbai';
+
+ * ORDER BY: Sorts the final results.
+   SELECT Name FROM Client ORDER BY Name;
+
+## Pattern Matching - The Search Expert
+ * [cite_start]LIKE: Used in a WHERE clause to search for a specific pattern in text. It uses two special wildcards:
+   * % (Percent): Matches any sequence of characters (zero or more).
+     -- Finds names starting with 'R', like 'Rohan', 'Ravi', 'Raj'
+SELECT Name FROM Client WHERE Name LIKE 'R%';
+
+   * _ (Underscore): Matches exactly one character.
+     -- Finds names where the second letter is 'a', like 'Ravi', 'Rahul'
+SELECT Name FROM Client WHERE Name LIKE '_a%';
+
+## Grouping & Summarizing - The Accountant 📊
+These are used to perform calculations on groups of rows.
+ * [cite_start]Aggregate Functions: Functions that summarize a set of rows into a single value.
+   * COUNT(*): Counts the total number of rows.
+   * SUM(column): Adds up all values in a column.
+   * AVG(column): Calculates the average value.
+   * MIN(column) / MAX(column): Find the smallest/largest value.
+ * [cite_start]GROUP BY: Groups rows that have the same values into summary rows, so you can run aggregate functions on each group.
+   -- Counts the number of clients in each city
+SELECT City, COUNT(*) FROM Client GROUP BY City;
+
+ * [cite_start]HAVING: Filters the results of a GROUP BY query based on the aggregate function's result.
+   -- Shows only those cities having more than 10 clients
+SELECT City, COUNT(*) FROM Client GROUP BY City HAVING COUNT(*) > 10;
+
+## Advanced Tools 🛠️
+ * [cite_start]JOIN: Combines rows from two or more tables based on a related column between them.
+   -- Gets the name and order date for each client
+SELECT Client.Name, Orders.OrderDate
+FROM Client JOIN Orders ON Client.ID = Orders.ClientID;
+
+ * [cite_start]Subquery: A query nested inside another query. The inner query runs first.
+   -- Finds the names of clients who have placed an order
+SELECT Name FROM Client WHERE ID IN (SELECT ClientID FROM Orders);
+
+ * [cite_start]VIEW: A virtual table based on the result-set of an SQL statement. It simplifies complex queries.
+   CREATE VIEW MumbaiClients AS SELECT * FROM Client WHERE City = 'Mumbai';
+
+ * [cite_start]INDEX: A special lookup table that the database search engine can use to speed up data retrieval.
+   CREATE INDEX idx_client_name ON Client(Name);
+
